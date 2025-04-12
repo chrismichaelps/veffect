@@ -203,4 +203,4 @@ describe('DiscriminatedUnionSchema', () => {
     expect(typeof result.message).toBe('string');
     expect(result.message).toContain('No schema matched for discriminated union');
   });
-}); 
+});

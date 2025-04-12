@@ -62,6 +62,18 @@ The playground contains several example scripts demonstrating different aspects 
    npx ts-node playground/path-tracking.ts
    ```
 
+8. **Simple Path Demo** - A simpler demonstration of path tracking
+
+   ```bash
+   npx ts-node playground/simple-path-demo.ts
+   ```
+
+9. **Practical API Validation** - Real-world API validation examples
+
+   ```bash
+   npx ts-node playground/practical-api-validation.ts
+   ```
+
 ## Example Use Cases
 
 Each example showcases real-world validation scenarios:
@@ -104,3 +116,4 @@ If you're new to the library, this is a great place to start as it follows the d
 - Discriminated unions
 - Pattern matching
 - Path tracking
+- Practical API validation scenarios
