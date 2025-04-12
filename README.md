@@ -51,34 +51,63 @@
 - **🔀 Pattern Matching** - Dynamic schema selection based on input values
 - **⚖️ Discriminated Unions** - First-class support for TypeScript's discriminated unions
 
-
-
 ## 📚 Examples
 
 The repository includes several example files in the `playground` directory:
 
-```bash
-# README examples (matches this documentation)
-npx ts-node playground/readme-examples.ts
+1. **README Examples** - Examples that match those shown in the main README documentation
 
-# Basic validation examples
-npx ts-node playground/basic-validation.ts
+   ```bash
+   npx ts-node playground/readme-examples.ts
+   ```
 
-# Object and tuple validation
-npx ts-node playground/objects-and-tuples.ts
+2. **Basic Validation** - Demonstrates primitive schema types (string, number, boolean)
 
-# Discriminated union and pattern matching
-npx ts-node playground/discriminated-union.ts
+   ```bash
+   npx ts-node playground/basic-validation.ts
+   ```
 
-# Path tracking in error messages
-npx ts-node playground/path-tracking.ts
+3. **Objects and Tuples** - Shows object and tuple schema validation
 
-# Async validation
-npx ts-node playground/async-validation.ts
+   ```bash
+   npx ts-node playground/objects-and-tuples.ts
+   ```
 
-# Transformations and pipelines
-npx ts-node playground/transformations.ts
-```
+4. **Unions and Advanced** - Demonstrates union schemas and advanced validation patterns
+
+   ```bash
+   npx ts-node playground/unions-and-advanced.ts
+   ```
+
+5. **Discriminated Union** - Examples of using discriminated unions
+
+   ```bash
+   npx ts-node playground/discriminated-union.ts
+   ```
+
+6. **Pattern Matching** - Examples of pattern-based schema selection
+
+   ```bash
+   npx ts-node playground/pattern-matching.ts
+   ```
+
+7. **Path Tracking** - Demonstrates error path tracking in validation errors
+
+   ```bash
+   npx ts-node playground/path-tracking.ts
+   ```
+
+8. **Simple Path Demo** - A simpler demonstration of path tracking
+
+   ```bash
+   npx ts-node playground/simple-path-demo.ts
+   ```
+
+9. **Practical API Validation** - Real-world API validation examples
+
+   ```bash
+   npx ts-node playground/practical-api-validation.ts
+   ```
 
 ...
 
