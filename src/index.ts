@@ -23,6 +23,7 @@ export * from './schema/literal';
 export * from './schema/optional';
 export * from './schema/custom';
 export * from './schema/object';
+export * from './schema/interface';
 export * from './schema/discriminatedUnion';
 export * from './schema/pattern';
 export * from './schema/any';

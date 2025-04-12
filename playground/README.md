@@ -104,6 +104,24 @@ The playground contains several example scripts demonstrating different aspects 
     npx ts-node playground/registry-example.ts
     ```
 
+15. **Recursive Types Example** - Shows how to create type-safe recursive schemas using the interface schema
+
+    ```bash
+    npx ts-node playground/recursive-types-example.ts
+    ```
+
+16. **Lazy Recursive Example** - Comprehensive examples of lazy-evaluated recursive schemas with proper TypeScript typing
+
+    ```bash
+    npx ts-node playground/lazy-recursive-example.ts
+    ```
+
+17. **Interface Schema Example** - Demonstrates the interface schema with key optionality and proper handling of properties with question marks
+
+    ```bash
+    npx ts-node playground/interface-schema-example.ts
+    ```
+
 ## Example Use Cases
 
 Each example showcases real-world validation scenarios:
@@ -176,3 +194,8 @@ If you're new to the library, this is a great place to start as it follows the d
   - Recursive schema validation
   - Deeply nested object validation
   - Custom validation functions
+- Interface schema features:
+  - Key vs value optionality
+  - True recursive types with lazy evaluation
+  - Type-safe deep nesting
+  - Escaped question marks in key names

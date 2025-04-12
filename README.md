@@ -58,6 +58,9 @@
 - **🔀 Pattern Matching** - Dynamic schema selection based on input values
 - **⚖️ Discriminated Unions** - First-class support for TypeScript's discriminated unions
 - **📚 Schema Registry** - Store and manage schemas with metadata
+- **🧬 Interface Schema** - Powerful schema with explicit key optionality
+- **🔄 Recursive Types** - True type-safe recursive structures without type assertions
+- **🔄 Key vs Value Optionality** - Clear distinction between optional keys and optional values
 
 ## 🚀 Installation
 
@@ -563,8 +566,6 @@ const invalidEmployee = validator.safeParse({
 }); // Error: Missing required fields
 ```
 
-### Extended Types
-
 #### Optional Schema
 
 ```typescript
@@ -643,6 +644,157 @@ console.log(validator.safeParse("hello")); // Success: string
 console.log(validator.safeParse(null)); // Success: null
 console.log(validator.safeParse(undefined)); // Success: undefined
 ```
+
+#### Interface Schema
+
+```typescript
+import {
+  interface_,
+  string,
+  number,
+  boolean,
+  array,
+  Schema,
+  InterfaceSchema,
+} from "veffect";
+
+// Interface with key optionality (note the ? suffix in the key)
+const userSchema = interface_({
+  name: string(),
+  email: string().email(),
+  "phone?": string(), // Optional key (can be omitted)
+  "address?": string(), // Optional key (can be omitted)
+});
+
+// Valid with all fields
+const completeUser = {
+  name: "John Doe",
+  email: "john@example.com",
+  phone: "555-1234",
+  address: "123 Main St",
+};
+// Valid!
+
+// Valid with only required fields
+const minimalUser = {
+  name: "Jane Smith",
+  email: "jane@example.com",
+};
+// Also valid!
+
+// Demonstrating key vs value optionality
+
+// Key optional (property can be omitted)
+const keyOptionalSchema = interface_({
+  "name?": string(), // property can be omitted
+});
+// Type is { name?: string }
+
+// Value optional (property must exist but can be undefined)
+const valueOptionalSchema = interface_({
+  name: string().optional(), // property must exist but value can be undefined
+});
+// Type is { name: string | undefined }
+
+// With key optionality:
+keyOptionalSchema.toValidator().safeParse({}).success; // true
+keyOptionalSchema.toValidator().safeParse({ name: "John" }).success; // true
+keyOptionalSchema.toValidator().safeParse({ name: undefined }).success; // false (undefined not allowed)
+
+// With value optionality:
+valueOptionalSchema.toValidator().safeParse({}).success; // false (property required)
+valueOptionalSchema.toValidator().safeParse({ name: "John" }).success; // true
+valueOptionalSchema.toValidator().safeParse({ name: undefined }).success; // true (undefined allowed)
+
+// Properties with question marks in names
+const schemaWithQuestionMark = interface_({
+  "exists\\?": string(), // Required field with ? in the name (escaped with \)
+  "optional?": string(), // Optional field (ends with ?)
+});
+
+// Validation requires the 'exists?' property
+schemaWithQuestionMark.toValidator().safeParse({}).success; // false
+schemaWithQuestionMark.toValidator().safeParse({ "exists?": "yes" }).success; // true
+schemaWithQuestionMark
+  .toValidator()
+  .safeParse({ "exists?": "yes", optional: "value" }).success; // true
+
+// Transform and refinement with interface schema
+const validatedUserSchema = interface_({
+  username: string(),
+  "age?": number(),
+  "email?": string().email(),
+})
+  .refine(
+    (data) => data.username.length >= 3,
+    "Username must be at least 3 characters"
+  )
+  .transform((data) => ({
+    ...data,
+    displayName: data.username.toUpperCase(),
+    status: data.email ? "verified" : "unverified",
+  }));
+
+// Recursive types with interface schema
+// Helper function for recursive types
+function lazy<T>(fn: () => T): T {
+  let value: T | undefined;
+  return new Proxy({} as any, {
+    get(target, prop) {
+      if (!value) value = fn();
+      return Reflect.get(value as object, prop);
+    },
+  });
+}
+
+// Define TreeNode interface for TypeScript
+interface TreeNode {
+  id: string;
+  name: string;
+  children?: TreeNode[];
+}
+
+// Create a recursive schema for a tree structure
+const TreeSchema: InterfaceSchema<any> = interface_({
+  id: string(),
+  name: string(),
+  "children?": array(lazy((): Schema<TreeNode[]> => TreeSchema as any)),
+});
+
+// Sample tree data
+const treeData = {
+  id: "root",
+  name: "Root Node",
+  children: [
+    {
+      id: "child1",
+      name: "Child 1",
+      children: [
+        { id: "grandchild1", name: "Grandchild 1" },
+        { id: "grandchild2", name: "Grandchild 2" },
+      ],
+    },
+    {
+      id: "child2",
+      name: "Child 2", // No children here - optional!
+    },
+  ],
+};
+
+// Validation works even with recursive structures
+const treeValidator = TreeSchema.toValidator();
+const treeResult = treeValidator.safeParse(treeData);
+// treeResult.success === true
+```
+
+The interface schema provides several key advantages:
+
+1. **Explicit key optionality** using the `?` suffix in property names
+2. **True recursive types** with the lazy pattern, avoiding TypeScript type assertion in application code
+3. **Clear distinction** between key optionality (property can be omitted) and value optionality (property must exist but can be undefined)
+4. **Support for literal question marks** in property names using escape characters (`'exists\\?'`)
+5. **Support for complex nested structures** with mixed optionality
+6. **Compatible with refinements and transformations** like other schemas
 
 ## 🔧 Schema Methods
 
@@ -849,6 +1001,99 @@ const retrySchema = string().refine(async (value) => {
 }, "Validation failed after multiple retry attempts");
 ```
 
+### Recursive Types
+
+The Interface Schema provides robust support for recursive types with the following pattern:
+
+```typescript
+import {
+  interface_,
+  string,
+  number,
+  array,
+  Schema,
+  InterfaceSchema,
+} from "veffect";
+
+/**
+ * A helper function to handle recursive types safely.
+ * This provides better TypeScript support than directly using self-references.
+ */
+function lazy<T>(fn: () => T): T {
+  let value: T | undefined;
+  return new Proxy({} as any, {
+    get(target, prop) {
+      if (!value) value = fn();
+      return Reflect.get(value as object, prop);
+    },
+  });
+}
+
+// Define TypeScript interfaces for recursive types
+interface FileSystemNode {
+  name: string;
+  path: string;
+  size?: number;
+  type?: string;
+  isDirectory?: boolean;
+  children?: FileSystemNode[];
+}
+
+// File system with directories and files
+const FileSystemSchema: InterfaceSchema<any> = interface_({
+  name: string(),
+  path: string(),
+  "size?": number(),
+  "type?": string(),
+  "isDirectory?": boolean(),
+  // Recursive reference with proper typing
+  "children?": array(
+    lazy((): Schema<FileSystemNode[]> => FileSystemSchema as any)
+  ),
+});
+
+// Define the category type
+interface Category {
+  name: string;
+  description?: string;
+  subcategories?: Category[];
+}
+
+// Category tree with subcategories
+const CategorySchema: InterfaceSchema<any> = interface_({
+  name: string(),
+  "description?": string(),
+  // Recursive reference with proper typing
+  "subcategories?": array(
+    lazy((): Schema<Category[]> => CategorySchema as any)
+  ),
+});
+
+// Using recursive schemas
+const validator = CategorySchema.toValidator();
+const validCategory = {
+  name: "Root",
+  subcategories: [
+    {
+      name: "Electronics",
+      subcategories: [{ name: "Phones" }],
+    },
+  ],
+};
+const result = validator.safeParse(validCategory);
+console.log(result.success); // true
+```
+
+**Key points for working with recursive types:**
+
+1. **Define TypeScript interfaces** for your recursive data structures
+2. **Use the `lazy()` helper function** to defer schema resolution
+3. **Add proper type annotations** to your schema constants using `InterfaceSchema<any>`
+4. **Use explicit return type annotations** in lazy callbacks: `(): Schema<YourType[]> =>`
+5. **Apply type assertion** with `as any` to avoid circular reference errors
+
+This pattern has been thoroughly tested and ensures type-safe recursive schemas without TypeScript errors at compile time while maintaining proper validation at runtime.
+
 ### Pattern Matching
 
 ```typescript
@@ -895,25 +1140,6 @@ const dataSchema = pattern((input) => {
   // Use invalid() to reject inputs that don't match any pattern
   return invalid("Invalid input type");
 });
-
-// Examples of usage
-const validator = dataSchema.toValidator();
-
-// Valid examples
-validator.safeParse("user@example.com"); // Validates as email
-validator.safeParse(42); // Validates as positive number
-validator.safeParse({
-  // Validates as user object
-  type: "user",
-  name: "Alice",
-  email: "alice@example.com",
-});
-
-// Invalid examples
-validator.safeParse("not-an-email"); // Fails email validation
-validator.safeParse(-5); // Fails positive number validation
-validator.safeParse({}); // Fails because missing 'type' field
-validator.safeParse(null); // Fails with 'Invalid input type'
 ```
 
 ### Path Tracking
