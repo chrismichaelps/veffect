@@ -1,6 +1,6 @@
 {
   "name": "veffect",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "powerful TypeScript validation library built on the robust foundation of Effect combining exceptional type safety, high performance, and developer experience. Taking inspiration from Effect's functional principles, VEffect delivers a balanced approach that excels at all three.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
