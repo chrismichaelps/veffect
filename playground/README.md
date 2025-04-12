@@ -98,6 +98,12 @@ The playground contains several example scripts demonstrating different aspects 
     npx ts-node playground/infer-example.ts
     ```
 
+14. **Registry and Metadata Examples** - Demonstrates the registry system for attaching metadata to schemas
+
+    ```bash
+    npx ts-node playground/registry-example.ts
+    ```
+
 ## Example Use Cases
 
 Each example showcases real-world validation scenarios:
@@ -154,6 +160,11 @@ If you're new to the library, this is a great place to start as it follows the d
   - Working with input and output types for transformed schemas
   - Generic schema function typings
   - Handling complex nested type definitions
+- Registry and metadata system:
+  - Attaching metadata to schemas for documentation
+  - Creating custom registries with specific metadata types
+  - Type-safe example data management
+  - Generating API documentation from schema metadata
 - Asynchronous validation:
   - Async refinements and transformations
   - Concurrent validation of multiple fields

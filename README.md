@@ -35,6 +35,13 @@
 - [Advanced Features](#-advanced-features)
 - [Error Handling](#-error-handling)
 - [Type Inference](#-type-inference)
+- [Registry System](#-registry-system)
+  - [Basic Registry Operations](#basic-registry-operations)
+  - [Utility Functions](#registry-utility-functions)
+  - [Example Validation](#example-validation)
+  - [Multiple Registries](#multiple-registries)
+  - [Documentation Generation](#documentation-generation)
+- [Examples](#-examples)
 - [Contributing](#handshake-contributing)
 - [Troubleshooting](#anger-troubleshootings)
 - [Show Your Support](#heart-show-your-support)
@@ -50,6 +57,7 @@
 - **💬 Detailed Errors** - Helpful error messages with path tracking
 - **🔀 Pattern Matching** - Dynamic schema selection based on input values
 - **⚖️ Discriminated Unions** - First-class support for TypeScript's discriminated unions
+- **📚 Schema Registry** - Store and manage schemas with metadata
 
 ## 🚀 Installation
 
@@ -1009,6 +1017,423 @@ type User = Infer<typeof UserSchema>;
 const TransformedSchema = string().transform((val) => parseInt(val, 10));
 type StringInput = Input<typeof TransformedSchema>; // string
 type NumberOutput = Output<typeof TransformedSchema>; // number
+```
+
+## 📚 Registry System
+
+VEffect provides a powerful registry system for managing schemas with metadata. This enables documentation generation, example validation, versioning, and more.
+
+### Basic Registry Operations
+
+```typescript
+import {
+  string,
+  number,
+  boolean,
+  object,
+  array,
+  createRegistry,
+  globalRegistry,
+  setMetadata,
+  describe,
+} from "veffect";
+
+// Define schemas with metadata using chained methods
+const userSchema = object({
+  id: number().integer(),
+  name: string().minLength(2),
+  email: string().email(),
+  isActive: boolean(),
+  tags: array(string()),
+});
+
+// Apply metadata to schemas
+setMetadata(userSchema.properties.id, {
+  description: "Unique user identifier",
+  examples: [1, 2, 3],
+});
+
+setMetadata(userSchema.properties.name, {
+  description: "User's full name",
+  examples: ["John Doe", "Jane Smith"],
+});
+
+// Get metadata from a schema
+const nameMetadata = globalRegistry.get(userSchema.properties.name);
+console.log("Name field metadata:", nameMetadata);
+// { description: "User's full name", examples: ["John Doe", "Jane Smith"] }
+
+// Alternative approach using describe for simple descriptions
+const productSchema = object({
+  id: number().integer(),
+  name: string(),
+  price: number().positive(),
+});
+
+describe(productSchema.properties.id, "Unique product identifier");
+describe(productSchema.properties.name, "Product name");
+describe(productSchema.properties.price, "Product price in USD");
+```
+
+### Registry Utility Functions
+
+```typescript
+import {
+  string,
+  number,
+  boolean,
+  object,
+  createRegistry,
+  registerSchema,
+  registryUtils,
+  GlobalMetadata,
+} from "veffect";
+
+// Create a custom registry with specific metadata type
+interface ApiMetadata extends GlobalMetadata {
+  endpoint: string;
+  method: "GET" | "POST" | "PUT" | "DELETE";
+  requiresAuth: boolean;
+  responseSchema?: any;
+}
+
+const apiRegistry = createRegistry<ApiMetadata>();
+
+// Register schemas with API metadata
+const getUserSchema = object({
+  userId: number().integer(),
+});
+
+registerSchema(getUserSchema, apiRegistry, {
+  endpoint: "/users/:userId",
+  method: "GET",
+  requiresAuth: true,
+});
+
+const createUserSchema = object({
+  name: string(),
+  email: string().email(),
+  password: string().minLength(8),
+});
+
+registerSchema(createUserSchema, apiRegistry, {
+  endpoint: "/users",
+  method: "POST",
+  requiresAuth: true,
+});
+
+// Get all API endpoints
+console.log("API Endpoints:");
+apiRegistry.getAll().forEach(([schema, metadata]) => {
+  console.log(
+    `${metadata.method} ${metadata.endpoint} (Auth: ${
+      metadata.requiresAuth ? "Required" : "None"
+    })`
+  );
+});
+```
+
+### Example Validation
+
+```typescript
+import {
+  string,
+  object,
+  createRegistry,
+  registerSchema,
+  registryUtils,
+  GlobalMetadata,
+} from "veffect";
+
+// Create a registry with example data that matches schema types
+interface ExampleMetadata<T> extends GlobalMetadata {
+  examples: T[];
+  description: string;
+}
+
+// Define a registry for user-related schemas
+const userExampleRegistry = createRegistry<ExampleMetadata<any>>();
+
+// Register a schema with strongly-typed examples
+const loginSchema = object({
+  email: string().email(),
+  password: string().minLength(8),
+});
+
+registerSchema(loginSchema, userExampleRegistry, {
+  description: "User login credentials",
+  examples: [{ email: "user@example.com", password: "securepassword" }],
+});
+
+// Validate all examples in the registry
+try {
+  const validationResults =
+    registryUtils.effects.validateAllExamples(userExampleRegistry);
+
+  console.log("Validation of examples:");
+  // Directly check the validation data
+  if (validationResults && Array.isArray(validationResults)) {
+    validationResults.forEach((result) => {
+      const schema = userExampleRegistry.get(result.schema);
+      console.log(
+        `- ${schema?.description}: ${
+          result.valid ? "All valid" : "Has invalid examples"
+        }`
+      );
+    });
+  } else {
+    console.log("No validation results or invalid format");
+  }
+} catch (error) {
+  console.error("Error validating examples:", error);
+}
+```
+
+### Documentation Generation
+
+```typescript
+import {
+  object,
+  string,
+  number,
+  createRegistry,
+  registerSchema,
+  registryUtils,
+  Schema,
+  GlobalMetadata,
+} from "veffect";
+
+// Create a custom registry with specific metadata type
+interface ApiMetadata extends GlobalMetadata {
+  endpoint: string;
+  method: "GET" | "POST" | "PUT" | "DELETE";
+  requiresAuth: boolean;
+}
+
+const apiRegistry = createRegistry<ApiMetadata>();
+
+// Register schemas with API metadata
+registerSchema(object({ userId: number().integer() }), apiRegistry, {
+  endpoint: "/users/:userId",
+  method: "GET",
+  requiresAuth: true,
+});
+
+registerSchema(
+  object({
+    name: string(),
+    email: string().email(),
+    password: string().minLength(8),
+  }),
+  apiRegistry,
+  {
+    endpoint: "/users",
+    method: "POST",
+    requiresAuth: true,
+  }
+);
+
+// Define the type of documentation objects
+interface ApiDoc {
+  endpoint: string;
+  method: string;
+  auth: string;
+  payload: string[];
+}
+
+// Generate documentation from registry metadata
+console.log("API Documentation:");
+const documentation = registryUtils.generateDocumentation<ApiDoc>(
+  apiRegistry as any,
+  (schema, metadata: any) => ({
+    endpoint: metadata.endpoint,
+    method: metadata.method,
+    auth: metadata.requiresAuth ? "Required" : "None",
+    // Add payload information by checking schema type
+    payload:
+      schema._tag === "ObjectSchema"
+        ? Object.keys((schema as any).properties)
+        : [],
+  })
+);
+
+// Print documentation
+documentation.forEach((doc) => {
+  console.log(`Endpoint: ${doc.method} ${doc.endpoint}`);
+  console.log(`Auth: ${doc.auth}`);
+  console.log(`Payload Fields: ${doc.payload.join(", ") || "None"}`);
+});
+```
+
+### Custom Registry with Type Constraints
+
+```typescript
+import { string, createRegistry, registerSchema } from "veffect";
+
+// Create a registry specifically for string schemas
+interface StringValidationMeta {
+  pattern?: string;
+  errorMessage: string;
+  caseSensitive: boolean;
+}
+
+// The second type parameter constrains this registry to only accept string schemas
+const stringRegistry = createRegistry<StringValidationMeta>();
+
+// These will work with the registry
+const usernameSchema = string().minLength(3).maxLength(20);
+registerSchema(usernameSchema, stringRegistry, {
+  pattern: "^[a-zA-Z0-9_]+$",
+  errorMessage: "Username must contain only letters, numbers, and underscores",
+  caseSensitive: true,
+});
+
+const emailSchema = string().email();
+registerSchema(emailSchema, stringRegistry, {
+  pattern: "^.+@.+\\..+$",
+  errorMessage: "Email must be valid",
+  caseSensitive: false,
+});
+
+// Generate validation rules for a frontend form validation library
+console.log("Frontend Validation Rules:");
+stringRegistry.getAll().forEach(([schema, meta]) => {
+  console.log({
+    type: "string",
+    pattern: meta.pattern,
+    errorMessage: meta.errorMessage,
+    caseSensitive: meta.caseSensitive,
+  });
+});
+```
+
+### Multiple Registries
+
+Sometimes you need to maintain separate registries for different purposes. This example shows how to use multiple registries with different metadata types:
+
+```typescript
+import {
+  string,
+  number,
+  boolean,
+  object,
+  createRegistry,
+  registerSchema,
+  GlobalMetadata,
+} from "veffect";
+
+// Create multiple registries with different metadata types
+interface ApiMetadata extends GlobalMetadata {
+  endpoint: string;
+  method: "GET" | "POST" | "PUT" | "DELETE";
+  requiresAuth: boolean;
+}
+
+interface ValidationMetadata extends GlobalMetadata {
+  rules: string[];
+  required: boolean;
+}
+
+interface UiMetadata extends GlobalMetadata {
+  label: string;
+  placeholder: string;
+}
+
+const apiRegistry = createRegistry<ApiMetadata>();
+const validationRegistry = createRegistry<ValidationMetadata>();
+const uiRegistry = createRegistry<UiMetadata>();
+
+// Create a schema
+const userSchema = object({
+  id: number().integer(),
+  name: string().minLength(2),
+  email: string().email(),
+  isActive: boolean(),
+});
+
+// Add the same schema to different registries with different metadata
+registerSchema(userSchema, apiRegistry, {
+  endpoint: "/users",
+  method: "GET",
+  requiresAuth: true,
+});
+
+registerSchema(userSchema, validationRegistry, {
+  rules: ["no-empty"],
+  required: true,
+});
+
+registerSchema(userSchema, uiRegistry, {
+  label: "User Information",
+  placeholder: "Enter user details",
+});
+
+// Operations on one registry don't affect others
+apiRegistry.remove(userSchema);
+console.log(apiRegistry.has(userSchema)); // false
+console.log(validationRegistry.has(userSchema)); // true
+console.log(uiRegistry.has(userSchema)); // true
+```
+
+### Comprehensive Metadata Example
+
+This example shows how to apply detailed metadata to a complex schema:
+
+```typescript
+import { string, number, boolean, object, array, setMetadata } from "veffect";
+
+// Define a complex schema
+const userSchema = object({
+  id: number().integer(),
+  name: string().minLength(2),
+  email: string().email(),
+  isActive: boolean(),
+  tags: array(string()),
+});
+
+// Apply comprehensive metadata to each field
+setMetadata(userSchema.properties.id, {
+  description: "Unique user identifier",
+  examples: [1, 2, 3],
+});
+
+setMetadata(userSchema.properties.name, {
+  description: "User's full name",
+  examples: ["John Doe", "Jane Smith"],
+});
+
+setMetadata(userSchema.properties.email, {
+  description: "User's email address",
+  examples: ["user@example.com"],
+});
+
+setMetadata(userSchema.properties.isActive, {
+  description: "Whether the user account is active",
+  examples: [true],
+});
+
+setMetadata(userSchema.properties.tags, {
+  description: "User tags or roles",
+  examples: [["admin", "user"], ["user"]],
+});
+
+// Metadata can be easily retrieved and used in various ways
+const nameMetadata = globalRegistry.get(userSchema.properties.name);
+console.log(`${nameMetadata.description}: ${nameMetadata.examples.join(", ")}`);
+// Output: User's full name: John Doe, Jane Smith
+
+// You can also use metadata for validation, documentation, or UI generation
+// For example, generating field labels and examples for a form:
+const formFields = Object.entries(userSchema.properties).map(
+  ([key, schema]) => {
+    const metadata = globalRegistry.get(schema) || {};
+    return {
+      field: key,
+      label: metadata.description || key,
+      example: metadata.examples ? metadata.examples[0] : undefined,
+    };
+  }
+);
 ```
 
 ## 📚 Examples
