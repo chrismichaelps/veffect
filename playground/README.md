@@ -92,6 +92,12 @@ The playground contains several example scripts demonstrating different aspects 
     npx ts-node playground/async-validation-example.ts
     ```
 
+13. **Type Inference Examples** - Showcases the type inference utilities for extracting TypeScript types from schemas
+
+    ```bash
+    npx ts-node playground/infer-example.ts
+    ```
+
 ## Example Use Cases
 
 Each example showcases real-world validation scenarios:
@@ -143,6 +149,11 @@ If you're new to the library, this is a great place to start as it follows the d
   - Transformation of collections to other data types
 - BigInt validation
 - Intersection of multiple schemas
+- Type inference utilities:
+  - Extracting TypeScript types from schemas
+  - Working with input and output types for transformed schemas
+  - Generic schema function typings
+  - Handling complex nested type definitions
 - Asynchronous validation:
   - Async refinements and transformations
   - Concurrent validation of multiple fields

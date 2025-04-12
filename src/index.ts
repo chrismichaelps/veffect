@@ -8,6 +8,7 @@ export * from './schema';
 export * from './validator';
 export * from './errors';
 export * from './types';
+export * from './infer';
 
 export * from './schema/string';
 export * from './schema/number';

@@ -34,7 +34,7 @@
 - [Schema Methods](#-schema-methods)
 - [Advanced Features](#-advanced-features)
 - [Error Handling](#-error-handling)
-- [Examples](#-examples)
+- [Type Inference](#-type-inference)
 - [Contributing](#handshake-contributing)
 - [Troubleshooting](#anger-troubleshootings)
 - [Show Your Support](#heart-show-your-support)
@@ -988,15 +988,34 @@ if (!result.success) {
 }
 ```
 
+## 🔄 Type Inference
+
+VEffect provides powerful type inference utilities inspired by Zod but built on Effect's foundation:
+
+```typescript
+import { string, number, object, Infer, Input, Output } from "veffect";
+
+const UserSchema = object({
+  id: number().integer(),
+  name: string().minLength(2),
+  age: number().min(18),
+});
+
+// Extract the TypeScript type from the schema
+type User = Infer<typeof UserSchema>;
+// Equivalent to: { id: number; name: string; age: number }
+
+// With transformations, you can extract input and output types separately
+const TransformedSchema = string().transform((val) => parseInt(val, 10));
+type StringInput = Input<typeof TransformedSchema>; // string
+type NumberOutput = Output<typeof TransformedSchema>; // number
+```
+
 ## 📚 Examples
 
-The repository includes several example files in the `playground` directory:
+The repository includes several example files in the `playground` directory
 
-1. **README Examples** - Examples that match those shown in the main README documentation
-
-   ```bash
-   npx ts-node playground/readme-examples.ts
-   ```
+---
 
 ## **:handshake: Contributing**
 
