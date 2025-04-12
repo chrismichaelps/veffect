@@ -44,7 +44,10 @@ export function testSchema<T>(
   describe(name, () => {
     describe('valid cases', () => {
       validCases.forEach(({ input, expected }) => {
-        test(`validates ${JSON.stringify(input)}`, () => {
+        // Use a special format for BigInt values to avoid JSON.stringify issues
+        const displayInput = typeof input === 'bigint' ? `BigInt(${input})` : JSON.stringify(input);
+
+        test(`validates ${displayInput}`, () => {
           const validator = schema.toValidator();
           const result = validator.safeParse(input);
           expectSuccess(result, expected !== undefined ? expected : input);
@@ -54,7 +57,10 @@ export function testSchema<T>(
 
     describe('invalid cases', () => {
       invalidCases.forEach(({ input, errorTag, errorMessage }) => {
-        test(`rejects ${JSON.stringify(input)}`, () => {
+        // Use a special format for BigInt values to avoid JSON.stringify issues
+        const displayInput = typeof input === 'bigint' ? `BigInt(${input})` : JSON.stringify(input);
+
+        test(`rejects ${displayInput}`, () => {
           const validator = schema.toValidator();
           const result = validator.safeParse(input);
           expectError(result, errorTag, errorMessage);
@@ -62,4 +68,4 @@ export function testSchema<T>(
       });
     });
   });
-} 
+}

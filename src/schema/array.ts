@@ -32,6 +32,7 @@ export interface ArraySchema<T> extends
   readonly minLength: (min: number, message?: string) => ArraySchema<T>;
   readonly maxLength: (max: number, message?: string) => ArraySchema<T>;
   readonly length: (length: number, message?: string) => ArraySchema<T>;
+  readonly nonEmpty: (message?: string) => ArraySchema<T>;
 }
 
 /**
@@ -76,6 +77,19 @@ export function array<T>(elementSchema: Schema<T>): ArraySchema<T> {
           ? E.succeed(input)
           : E.fail(new ArrayValidationError(
             message || `Array must contain exactly ${length} elements`,
+            [],
+            options?.path
+          ))
+      );
+      return schema;
+    },
+
+    nonEmpty: (message) => {
+      validations.push((input, options) =>
+        input.length > 0
+          ? E.succeed(input)
+          : E.fail(new ArrayValidationError(
+            message || `Array must not be empty`,
             [],
             options?.path
           ))
@@ -206,4 +220,4 @@ export function array<T>(elementSchema: Schema<T>): ArraySchema<T> {
   };
 
   return schema;
-} 
+}

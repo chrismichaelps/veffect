@@ -2,6 +2,7 @@
  * String schema implementation
  */
 import * as E from '../internal/effect';
+import * as EffectMod from 'effect/Effect';
 import {
   Schema,
   Validator,
@@ -281,6 +282,65 @@ export function string(): StringSchema {
 
     // Refinement implementation
     refine: (refinement, message) => {
+      // Check if the refinement is async
+      const testIsAsync = refinement("") instanceof Promise;
+
+      if (testIsAsync) {
+        // For async refinement, return a special schema that handles async validation
+        return {
+          ...schema,
+          _tag: 'StringSchema',
+          toValidator: () => {
+            const baseValidator = schema.toValidator();
+
+            return {
+              ...baseValidator,
+              // Override validateAsync to handle the async refinement
+              validateAsync: async (input: unknown, options?: ValidatorOptions) => {
+                // Validate the input type first
+                if (typeof input !== 'string') {
+                  throw {
+                    _tag: 'TypeValidationError',
+                    message: errorMessage || 'Value must be a string',
+                    expected: 'string',
+                    received: typeof input,
+                    path: options?.path
+                  };
+                }
+
+                // Run all the synchronous validations first
+                let result = input;
+
+                try {
+                  // Apply the async refinement
+                  const isValid = await refinement(result);
+                  if (!isValid) {
+                    throw {
+                      _tag: 'RefinementValidationError',
+                      message: typeof message === 'function'
+                        ? message(result)
+                        : message || 'Failed refinement',
+                      path: options?.path
+                    };
+                  }
+                  return result;
+                } catch (error) {
+                  // Any error in the refinement should result in a validation error
+                  throw {
+                    _tag: 'RefinementValidationError',
+                    message: typeof message === 'function'
+                      ? message(result)
+                      : message || 'Failed refinement',
+                    path: options?.path
+                  };
+                }
+              }
+            };
+          }
+        };
+      }
+
+      // For synchronous refinement, use the standard approach
       validations.push((input, options) =>
         refinement(input)
           ? E.succeed(input)
@@ -397,4 +457,4 @@ export function string(): StringSchema {
   };
 
   return schema;
-} 
+}

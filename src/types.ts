@@ -69,7 +69,7 @@ export interface RefinableSchema<T, S extends Schema<T>> {
    * Add a refinement to validate the output further
    */
   readonly refine: (
-    refinement: (value: T) => boolean,
+    refinement: (value: T) => boolean | Promise<boolean>,
     message?: string | ((value: T) => string)
   ) => S;
 }
@@ -174,6 +174,16 @@ export interface StringSchema extends
   readonly regex: (pattern: RegExp, message?: string) => StringSchema;
   readonly email: (message?: string) => StringSchema;
   readonly url: (message?: string) => StringSchema;
+  readonly uuid: (message?: string) => StringSchema;
+  readonly cuid: (message?: string) => StringSchema;
+  readonly cuid2: (message?: string) => StringSchema;
+  readonly ulid: (message?: string) => StringSchema;
+  readonly startsWith: (substring: string, message?: string) => StringSchema;
+  readonly endsWith: (substring: string, message?: string) => StringSchema;
+  readonly includes: (substring: string, message?: string) => StringSchema;
+  readonly datetime: (options?: { offset?: boolean, precision?: number }, message?: string) => StringSchema;
+  readonly ip: (version?: 'v4' | 'v6', message?: string) => StringSchema;
+  readonly nonempty: (message?: string) => StringSchema;
 
   // String transformations
   readonly trim: (message?: string) => StringSchema;
@@ -198,6 +208,13 @@ export interface NumberSchema extends
   readonly integer: (message?: string) => NumberSchema;
   readonly positive: (message?: string) => NumberSchema;
   readonly negative: (message?: string) => NumberSchema;
+  readonly nonnegative: (message?: string) => NumberSchema;
+  readonly nonpositive: (message?: string) => NumberSchema;
+  readonly multipleOf: (value: number, message?: string) => NumberSchema;
+  readonly finite: (message?: string) => NumberSchema;
+  readonly safe: (message?: string) => NumberSchema;
+  readonly step: (step: number, message?: string) => NumberSchema;
+  readonly port: (message?: string) => NumberSchema;
 }
 
 /**
@@ -216,6 +233,7 @@ export interface ArraySchema<T> extends
   readonly minLength: (min: number, message?: string) => ArraySchema<T>;
   readonly maxLength: (max: number, message?: string) => ArraySchema<T>;
   readonly length: (length: number, message?: string) => ArraySchema<T>;
+  readonly nonEmpty: (message?: string) => ArraySchema<T>;
 }
 
 /**
@@ -229,4 +247,4 @@ export interface ObjectSchema<T extends Record<string, any>> extends
   NullableSchema<T, ObjectSchema<T>> {
   readonly _tag: 'ObjectSchema';
   readonly properties: { [K in keyof T]: Schema<T[K]> };
-} 
+}

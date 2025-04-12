@@ -52,4 +52,4 @@ export const isLeft = Either.isLeft;
 
 // For convenience when working with Either
 export const unwrapEither = <E, A>(either: Either.Either<E, A>): A | E =>
-  Either.isRight(either) ? either.right : either.left; 
+  Either.isRight(either) ? either.right : either.left;

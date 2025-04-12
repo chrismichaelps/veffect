@@ -1,6 +1,6 @@
 /**
  * VEffect Validation Library
- * 
+ *
  * A TypeScript validation library built on top of Effect.
  */
 
@@ -9,7 +9,6 @@ export * from './validator';
 export * from './errors';
 export * from './types';
 
-// Export schema creators
 export * from './schema/string';
 export * from './schema/number';
 export * from './schema/boolean';
@@ -19,4 +18,8 @@ export * from './schema/tuple';
 export * from './schema/literal';
 export * from './schema/discriminatedUnion';
 export * from './schema/pattern';
-export * from './schema/any'; 
+export * from './schema/any';
+export * from './schema/set';
+export * from './schema/map';
+export * from './schema/bigint';
+export * from './schema/intersection';

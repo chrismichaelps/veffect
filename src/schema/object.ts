@@ -31,6 +31,52 @@ export function object<T extends Record<string, any>>(
 
     // Refinement implementation
     refine: (refinement, message) => {
+      // Check if the refinement is async
+      const testIsAsync = refinement({} as T) instanceof Promise;
+
+      if (testIsAsync) {
+        // For async refinements, return a special schema
+        return {
+          ...schema,
+          toValidator: () => {
+            const baseValidator = schema.toValidator();
+
+            return {
+              ...baseValidator,
+              validateAsync: async (input: unknown, options?: ValidatorOptions) => {
+                // First validate using the base object validator
+                const validatedInput = await baseValidator.validateAsync(input, options);
+
+                // Then apply the async refinement
+                try {
+                  const isValid = await refinement(validatedInput as T);
+                  if (!isValid) {
+                    throw {
+                      _tag: 'RefinementValidationError',
+                      message: typeof message === 'function'
+                        ? message(validatedInput as T)
+                        : message || 'Failed refinement',
+                      path: options?.path
+                    };
+                  }
+                  return validatedInput;
+                } catch (error) {
+                  if (error && typeof error === 'object' && '_tag' in error) {
+                    throw error;
+                  }
+                  throw {
+                    _tag: 'RefinementValidationError',
+                    message: error instanceof Error ? error.message : 'Failed refinement',
+                    path: options?.path
+                  };
+                }
+              }
+            };
+          }
+        } as ObjectSchema<T>;
+      }
+
+      // For synchronous refinements, use the standard approach
       return {
         ...schema,
         toValidator: () => createEffectValidator((input, options) => {
@@ -181,4 +227,4 @@ export function object<T extends Record<string, any>>(
   };
 
   return schema;
-} 
+}

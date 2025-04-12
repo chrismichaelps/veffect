@@ -74,6 +74,24 @@ The playground contains several example scripts demonstrating different aspects 
    npx ts-node playground/practical-api-validation.ts
    ```
 
+10. **Map and Set Examples** - Comprehensive examples of Map and Set validation features
+
+    ```bash
+    npx ts-node playground/map-set-examples.ts
+    ```
+
+11. **BigInt Examples** - Examples of BigInt validation and operations
+
+    ```bash
+    npx ts-node playground/bigint-examples.ts
+    ```
+
+12. **Async Validation Examples** - Demonstrates asynchronous validation with API calls and retries
+
+    ```bash
+    npx ts-node playground/async-validation-example.ts
+    ```
+
 ## Example Use Cases
 
 Each example showcases real-world validation scenarios:
@@ -117,3 +135,22 @@ If you're new to the library, this is a great place to start as it follows the d
 - Pattern matching
 - Path tracking
 - Practical API validation scenarios
+- Set and Map validation with:
+  - Size constraints (minSize, maxSize, size, nonEmpty)
+  - Content validation (has, subset, superset for Sets)
+  - Key/value validation (hasKey, hasValue, entries for Maps)
+  - Nested validation with complex data structures
+  - Transformation of collections to other data types
+- BigInt validation
+- Intersection of multiple schemas
+- Asynchronous validation:
+  - Async refinements and transformations
+  - Concurrent validation of multiple fields
+  - Error handling in async contexts
+  - Timeout handling and recovery
+  - Retry mechanisms for transient failures
+- Advanced validation patterns:
+  - Conditional validation based on other fields
+  - Recursive schema validation
+  - Deeply nested object validation
+  - Custom validation functions

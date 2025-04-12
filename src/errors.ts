@@ -142,4 +142,62 @@ export class CustomValidationError implements ValidationError {
     readonly message: string,
     readonly path?: string[]
   ) { }
-} 
+}
+
+/**
+ * Set validation error
+ */
+export class SetValidationError implements ValidationError {
+  readonly _tag = 'SetValidationError';
+  constructor(
+    readonly message: string,
+    readonly errors?: ValidationError[],
+    readonly path?: string[]
+  ) { }
+}
+
+/**
+ * Map validation error
+ */
+export class MapValidationError implements ValidationError {
+  readonly _tag = 'MapValidationError';
+  constructor(
+    readonly message: string,
+    readonly errors?: ValidationError[],
+    readonly path?: string[]
+  ) { }
+}
+
+/**
+ * BigInt validation error
+ */
+export class BigIntValidationError implements ValidationError {
+  readonly _tag = 'BigIntValidationError';
+  constructor(
+    readonly message: string,
+    readonly path?: string[]
+  ) { }
+}
+
+/**
+ * RegExp validation error
+ */
+export class RegExpValidationError implements ValidationError {
+  readonly _tag = 'RegExpValidationError';
+  constructor(
+    readonly message: string,
+    readonly path?: string[]
+  ) { }
+}
+
+/**
+ * Intersection validation error
+ */
+export class IntersectionValidationError implements ValidationError {
+  readonly _tag = 'IntersectionValidationError';
+  constructor(
+    readonly message: string,
+    readonly errors: ValidationError[],
+    readonly path?: string[]
+  ) { }
+}

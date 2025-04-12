@@ -19,6 +19,12 @@ export * from './schema/discriminatedUnion';
 export * from './schema/pattern';
 export * from './schema/any';
 
+// New schema types
+export * from './schema/set';
+export * from './schema/map';
+export * from './schema/bigint';
+export * from './schema/intersection';
+
 // Direct exports of common functions needed by example.ts
 export { string } from './schema/string';
 export { number } from './schema/number';
@@ -29,6 +35,12 @@ export { optional } from './schema/optional';
 export { discriminatedUnion } from './schema/discriminatedUnion';
 export { pattern, invalid } from './schema/pattern';
 export { any } from './schema/any';
+
+// Direct exports of new schema functions
+export { set } from './schema/set';
+export { map } from './schema/map';
+export { bigint } from './schema/bigint';
+export { intersection } from './schema/intersection';
 
 // Re-export types
 export {
@@ -42,4 +54,4 @@ export {
   NumberSchema,
   ArraySchema,
   ObjectSchema
-} from './types'; 
+} from './types';

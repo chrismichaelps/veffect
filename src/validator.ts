@@ -43,17 +43,43 @@ export function createBaseValidator<T, I = unknown>(
       }
     },
 
-    validateAsync: (input: I, options?: ValidatorOptions): Promise<T> => {
-      return E.runPromise(validateFn(input, options));
+    validateAsync: async (input: I, options?: ValidatorOptions): Promise<T> => {
+      try {
+        // First try to validate synchronously
+        const syncResult = validateFn(input, options);
+
+        // If validation immediately succeeds or fails, return that result
+        const syncExit = E.runSyncExit(syncResult);
+
+        if (E.isSuccess(syncExit)) {
+          return syncExit.value;
+        }
+
+        // Handle async validation using Promise
+        return await E.runPromise(syncResult);
+      } catch (err) {
+        // Any errors should be converted to ValidationError format
+        const error = err as Error;
+        if (err && typeof err === 'object' && '_tag' in err) {
+          throw err; // Already a ValidationError
+        }
+
+        // Convert generic Error to ValidationError format
+        throw {
+          _tag: 'RefinementValidationError',
+          message: error.message || 'Async validation failed',
+          path: options?.path
+        } as ValidationError;
+      }
     }
   };
 }
 
 /**
- * Create a validator that validates using an Effect
+ * Create an Effect-based validator
  */
-export function createEffectValidator<T, E extends ValidationError, I = unknown>(
-  effectFn: (input: I, options?: ValidatorOptions) => E.Effect<T, E>
+export function createEffectValidator<T, I = unknown>(
+  validateFn: (input: I, options?: ValidatorOptions) => ValidationResult<T>
 ): Validator<T, I> {
-  return createBaseValidator((input, options) => effectFn(input, options));
-} 
+  return createBaseValidator(validateFn);
+}
