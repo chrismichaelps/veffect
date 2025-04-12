@@ -1,0 +1,77 @@
+{
+  "name": "veffect",
+  "version": "0.3.0",
+  "description": "powerful TypeScript validation library built on the robust foundation of Effect combining exceptional type safety, high performance, and developer experience. Taking inspiration from Effect's functional principles, VEffect delivers a balanced approach that excels at all three.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "npm run clean && npm run build",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "example": "ts-node src/example.ts",
+    "version:patch": "node scripts/update-version.js patch",
+    "version:minor": "node scripts/update-version.js minor",
+    "version:major": "node scripts/update-version.js major"
+  },
+  "keywords": [
+    "typescript",
+    "validation",
+    "effect",
+    "functional-programming",
+    "schema",
+    "type-safety",
+    "schema-validation",
+    "data-validation",
+    "form-validation",
+    "api-validation",
+    "runtime-types",
+    "discriminated-unions",
+    "schema-composition",
+    "validation-error",
+    "type-inference",
+    "validator",
+    "typesafe",
+    "zod-alternative",
+    "schema-transformation",
+    "parsing",
+    "object-validation",
+    "typed-schema",
+    "input-validation"
+  ],
+  "author": "Chris M <chrisperezsantiago1@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "effect": "^2.0.0-next.19"
+  },
+  "bundledDependencies": [
+    "effect"
+  ],
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "homepage": "https://github.com/chrismichaelps/veffect#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chrismichaelps/veffect.git"
+  }
+}
