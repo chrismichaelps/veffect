@@ -122,6 +122,12 @@ The playground contains several example scripts demonstrating different aspects 
     npx ts-node playground/interface-schema-example.ts
     ```
 
+18. **Primitive Types Examples** - Showcases all primitive types with a focus on the newly added types (symbol, null, undefined, void, unknown, never)
+
+    ```bash
+    npx ts-node playground/primitive-types-examples.ts
+    ```
+
 ## Example Use Cases
 
 Each example showcases real-world validation scenarios:
@@ -198,4 +204,7 @@ If you're new to the library, this is a great place to start as it follows the d
   - Key vs value optionality
   - True recursive types with lazy evaluation
   - Type-safe deep nesting
-  - Escaped question marks in key names
+- All JavaScript primitive types:
+  - Standard primitives (string, number, boolean, bigint, date)
+  - Special primitives (symbol, null, undefined, void)
+  - Type-safety primitives (any, unknown, never)

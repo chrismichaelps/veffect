@@ -248,6 +248,275 @@ const LARGE_BIGINT = BigInt("1234567890123456789012345678901234567890");
 // BigInts can represent numbers of arbitrary precision, unlike regular numbers
 ```
 
+#### Symbol Schema
+
+```typescript
+import { symbol } from "veffect";
+
+// Basic Symbol validation
+const symbolSchema = symbol();
+
+// Symbols as unique identifiers
+const ADMIN_ROLE = Symbol("ADMIN");
+const USER_ROLE = Symbol("USER");
+
+// Validation with symbols
+const roleSchema = symbol();
+const validator = roleSchema.toValidator();
+
+// Valid: Symbols pass validation
+const adminResult = validator.safeParse(ADMIN_ROLE);
+// { success: true, data: Symbol(ADMIN) }
+
+// Invalid: Non-Symbol values fail validation
+const invalidResult = validator.safeParse("ADMIN");
+// {
+//   success: false,
+//   error: {
+//     _tag: 'TypeValidationError',
+//     message: 'Expected a symbol, received string',
+//     expected: 'symbol',
+//     received: 'string'
+//   }
+// }
+
+// Practical example: Using Symbols for role-based access control
+function checkAccess(role: symbol) {
+  roleSchema.toValidator().parse(role); // Validate symbol type
+
+  if (role === ADMIN_ROLE) {
+    return "Admin access granted";
+  } else if (role === USER_ROLE) {
+    return "User access granted";
+  }
+  return "Access denied";
+}
+```
+
+#### Null Schema
+
+```typescript
+import { nullType } from "veffect";
+
+// Null validation
+const nullSchema = nullType();
+const validator = nullSchema.toValidator();
+
+// Valid: only null passes
+const validResult = validator.safeParse(null);
+// { success: true, data: null }
+
+// Invalid: undefined, false, 0, "" all fail
+const invalidResult = validator.safeParse(undefined);
+// {
+//   success: false,
+//   error: {
+//     _tag: 'TypeValidationError',
+//     message: 'Expected null, received undefined',
+//     expected: 'null',
+//     received: 'undefined'
+//   }
+// }
+
+// Practical example: Explicit null field
+const userSchema = object({
+  id: string(),
+  email: string().email(),
+  phoneNumber: nullType(), // Must be explicitly null (not undefined)
+});
+```
+
+#### Undefined Schema
+
+```typescript
+import { undefinedType } from "veffect";
+
+// Undefined validation
+const undefinedSchema = undefinedType();
+const validator = undefinedSchema.toValidator();
+
+// Valid: only undefined passes
+const validResult = validator.safeParse(undefined);
+// { success: true, data: undefined }
+
+// Invalid: null, false, 0, "" all fail
+const invalidResult = validator.safeParse(null);
+// {
+//   success: false,
+//   error: {
+//     _tag: 'TypeValidationError',
+//     message: 'Expected undefined, received object',
+//     expected: 'undefined',
+//     received: 'object'
+//   }
+// }
+
+// Practical example: State transition
+const taskSchema = object({
+  id: string(),
+  title: string(),
+  completedAt: undefinedType(), // Must be explicitly undefined
+});
+
+// Later transitions to:
+const completedTaskSchema = object({
+  id: string(),
+  title: string(),
+  completedAt: string().datetime(), // Now must have a date
+});
+```
+
+#### Void Schema
+
+```typescript
+import { voidType } from "veffect";
+
+// Void validation (accepts undefined)
+const voidSchema = voidType();
+const validator = voidSchema.toValidator();
+
+// Valid: only undefined passes
+const validResult = validator.safeParse(undefined);
+// { success: true, data: undefined }
+
+// Invalid: null and all other values fail
+const invalidResult = validator.safeParse(null);
+// {
+//   success: false,
+//   error: {
+//     _tag: 'TypeValidationError',
+//     message: 'Expected void (undefined), received object',
+//     expected: 'void',
+//     received: 'object'
+//   }
+// }
+
+// Practical example: Function return type
+interface LoggerConfig {
+  log: (message: string) => void; // Function returns nothing
+}
+
+const loggerSchema = object({
+  log: pattern((input) => {
+    if (typeof input === "function") {
+      return any().refine(
+        () => true, // We can't validate the return type at runtime
+        "Must be a function returning void"
+      );
+    }
+    return invalid("Must be a function");
+  }),
+});
+```
+
+#### Unknown Schema
+
+```typescript
+import { unknown } from "veffect";
+
+// Unknown validation (type-safe alternative to any)
+const unknownSchema = unknown();
+const validator = unknownSchema.toValidator();
+
+// Valid: all values pass validation
+const stringResult = validator.safeParse("hello"); // { success: true, data: "hello" }
+const numberResult = validator.safeParse(123); // { success: true, data: 123 }
+const objectResult = validator.safeParse({}); // { success: true, data: {} }
+
+// Unlike any, unknown requires type checking before operations
+function processData(data: unknown) {
+  // Validate with unknown schema
+  const validData = unknownSchema.toValidator().parse(data);
+
+  // Need explicit type checks before operations
+  if (typeof validData === "string") {
+    return validData.toUpperCase();
+  } else if (typeof validData === "number") {
+    return validData * 2;
+  } else {
+    return "Unknown data type";
+  }
+}
+
+// Practical example: External API data
+const apiResponseSchema = unknown();
+// Later refinement after receiving data
+function handleApiResponse(data: unknown) {
+  const response = apiResponseSchema.toValidator().parse(data);
+
+  // Type narrowing for safety
+  if (typeof response === "object" && response !== null && "data" in response) {
+    // Process response.data...
+    return "Valid API response";
+  }
+
+  return "Invalid API response format";
+}
+```
+
+#### Never Schema
+
+```typescript
+import { never } from "veffect";
+
+// Never validation (rejects all values)
+const neverSchema = never();
+const validator = neverSchema.toValidator();
+
+// Invalid: all values fail validation
+const result = validator.safeParse("anything");
+// {
+//   success: false,
+//   error: {
+//     _tag: 'TypeValidationError',
+//     message: 'Never type schema never accepts any value',
+//     expected: 'never',
+//     received: 'string'
+//   }
+// }
+
+// Practical example: Exhaustive checking with discriminated unions
+const shapeType = discriminatedUnion("type", [
+  object({
+    type: literal("circle"),
+    radius: number(),
+  }),
+  object({
+    type: literal("rectangle"),
+    width: number(),
+    height: number(),
+  }),
+]);
+
+function calculateArea(shape: any) {
+  if (shape.type === "circle") {
+    return Math.PI * shape.radius ** 2;
+  } else if (shape.type === "rectangle") {
+    return shape.width * shape.height;
+  } else {
+    // Exhaustive check - should never happen if validation passed
+    never().toValidator().parse(shape);
+    // Unreachable in typescript
+    return 0;
+  }
+}
+```
+
+#### Any Schema
+
+```typescript
+import { any } from "veffect";
+
+// Accepts any value
+const dataSchema = any();
+
+// Can still be refined
+const nonNullSchema = any().refine(
+  (val) => val !== null && val !== undefined,
+  "Value cannot be null or undefined"
+);
+```
+
 ### Complex Types
 
 #### Object Schema

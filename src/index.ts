@@ -32,3 +32,10 @@ export * from './schema/set';
 export * from './schema/map';
 export * from './schema/bigint';
 export * from './schema/intersection';
+
+export * from './schema/symbol';
+export * from './schema/null';
+export * from './schema/undefined';
+export * from './schema/void';
+export * from './schema/unknown';
+export * from './schema/never';
