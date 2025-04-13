@@ -1491,6 +1491,30 @@ documentation.forEach((doc) => {
 });
 ```
 
+### OpenAPI Specification Generation
+
+VEffect's registry system can be used to generate complete OpenAPI specifications (OAS) with proper type information, enabling seamless integration with API documentation tools like Swagger UI or Redoc.
+
+This powerful capability is demonstrated in the [openapi-specification-example.ts](playground/openapi-specification-example.ts) file included in the playground directory.
+
+**Key benefits of using VEffect for OpenAPI generation:**
+
+1. **Type safety** - Full TypeScript support ensures your API documentation matches your code
+2. **Schema reuse** - Use the same schemas for validation and documentation
+3. **Metadata-driven** - Extend schemas with rich API metadata
+4. **Proper type conversion** - VEffect schemas are automatically converted to OpenAPI schema objects with correct types
+5. **Customizable** - Generate documentation that fits your specific needs
+6. **Integration-ready** - Works with Swagger UI, Redoc, and other OpenAPI tools
+7. **Single source of truth** - Maintain API validation and documentation in one place
+
+The generated OpenAPI specification can be used with any OpenAPI-compatible tools, including:
+
+- **Swagger UI** for interactive API documentation
+- **Redoc** for beautiful static documentation
+- **OpenAPI Generator** for client SDK generation
+- **Postman** for API testing
+- **API gateways** like Kong or AWS API Gateway
+
 ### Custom Registry with Type Constraints
 
 ```typescript
