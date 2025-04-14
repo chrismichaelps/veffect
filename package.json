@@ -23,6 +23,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "example": "ts-node src/example.ts",
+    "bench:all": "node benchmark/run-all.js",
     "version:patch": "node scripts/update-version.js patch",
     "version:minor": "node scripts/update-version.js minor",
     "version:major": "node scripts/update-version.js major"
