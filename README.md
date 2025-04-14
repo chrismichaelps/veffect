@@ -1,6 +1,8 @@
-# VEffect
-
 <div align="center">
+  <img src="public/veffect-logo.png" alt="VEffect Logo" width="400"  />
+</div>
+
+<div align="center">  
   <img src="https://img.shields.io/npm/v/veffect" alt="npm version" />
   <img src="https://img.shields.io/npm/dm/veffect" alt="npm downloads" />
   <img src="https://img.shields.io/github/license/chrismperez/veffect" alt="license" />
