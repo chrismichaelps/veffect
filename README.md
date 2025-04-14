@@ -5,8 +5,8 @@
 <div align="center">  
   <img src="https://img.shields.io/npm/v/veffect" alt="npm version" />
   <img src="https://img.shields.io/npm/dm/veffect" alt="npm downloads" />
-  <img src="https://img.shields.io/github/license/chrismperez/veffect" alt="license" />
-  <img src="https://img.shields.io/github/stars/chrismperez/veffect" alt="stars" />
+  <img src="https://img.shields.io/github/license/chrismichaelps/veffect?color=blue" alt="license" />
+  <img src="https://img.shields.io/github/stars/chrismichaelps/veffect?style=social" alt="stars" />
 </div>
 
 ## 🌟 Overview
