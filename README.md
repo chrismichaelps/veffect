@@ -2174,6 +2174,18 @@ npm run build
 npx ts-node playground/string-validations.ts
 ```
 
+## 📊 Benchmarks
+
+VEffect provides comprehensive benchmarks to measure validation performance across different schema types.
+
+### Running Benchmarks
+
+To run all benchmarks:
+
+```bash
+npm run bench:all
+```
+
 ---
 
 ## **:handshake: Contributing**
