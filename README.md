@@ -32,6 +32,12 @@
   - [Composition Types](#composition-types)
   - [Extended Types](#extended-types)
 - [Schema Methods](#-schema-methods)
+- [Enhanced String Validation Features](#-enhanced-string-validation-features)
+  - [CIDR Notation Validation](#cidr-notation-validation)
+  - [Base64 Validation](#base64-validation)
+  - [Date and Time Validation](#date-and-time-validation)
+  - [Specialized String Formats](#specialized-string-formats)
+  - [Datetime Validation](#datetime-validation)
 - [Advanced Features](#-advanced-features)
 - [Error Handling](#-error-handling)
 - [Type Inference](#-type-inference)
@@ -148,6 +154,33 @@ const websiteSchema = string().url();
 
 // UUID validation
 const idSchema = string().uuid();
+
+// Enhanced string validations
+// CIDR validation (IP network ranges)
+const networkSchema = string().cidr(); // Validates both IPv4 and IPv6 CIDR notation
+const ipv4NetworkSchema = string().cidr({ version: "v4" }); // IPv4 CIDR only
+const ipv6NetworkSchema = string().cidr("v6"); // IPv6 CIDR only (string param)
+
+// Base64 validation
+const base64Schema = string().base64(); // Standard base64
+const urlSafeBase64Schema = string().base64({ urlSafe: true }); // URL-safe base64
+const flexibleBase64Schema = string().base64({ padding: false }); // Optional padding
+
+// Date validation (YYYY-MM-DD)
+const dateSchema = string().date();
+
+// Time validation (HH:MM:SS[.sss])
+const timeSchema = string().time();
+const preciseTimeSchema = string().time({ precision: 3 }); // Requires exactly 3 decimal places
+
+// ISO 8601 Duration validation
+const durationSchema = string().duration(); // E.g., "P1Y2M3DT4H5M6S"
+
+// Emoji validation
+const emojiSchema = string().emoji();
+
+// Nanoid validation (URL-friendly identifiers)
+const nanoidSchema = string().nanoid();
 
 // Datetime validation
 const dateSchema = string().datetime();
@@ -1955,9 +1988,189 @@ const formFields = Object.entries(userSchema.properties).map(
 );
 ```
 
+## 🔠 Enhanced String Validation Features
+
+VEffect provides a comprehensive set of string validation functions beyond standard validations such as length and regex. These enhanced validations help ensure data integrity for specific formats:
+
+### CIDR Notation Validation
+
+```typescript
+import { string } from "veffect";
+
+// Basic CIDR validation (supports both IPv4 and IPv6)
+const networkSchema = string().cidr();
+
+// IPv4 CIDR validation only (using object parameter)
+const ipv4NetworkSchema = string().cidr({ version: "v4" });
+
+// IPv6 CIDR validation only (using string parameter)
+const ipv6NetworkSchema = string().cidr("v6");
+
+// Usage
+const validator = networkSchema.toValidator();
+
+// Valid examples
+validator.safeParse("192.168.0.0/24"); // IPv4 CIDR - Success
+validator.safeParse("10.0.0.0/8"); // IPv4 CIDR - Success
+validator.safeParse("2001:db8::/32"); // IPv6 CIDR - Success
+
+// Invalid examples
+validator.safeParse("192.168.0.0"); // Missing prefix - Error
+validator.safeParse("192.168.0.0/33"); // Invalid prefix (> 32) - Error
+validator.safeParse("invalid"); // Not CIDR - Error
+```
+
+### Base64 Validation
+
+```typescript
+import { string } from "veffect";
+
+// Standard Base64 validation
+const base64Schema = string().base64();
+
+// URL-safe Base64 validation
+const urlSafeBase64Schema = string().base64({ urlSafe: true });
+
+// Base64 with optional padding
+const flexibleBase64Schema = string().base64({ padding: false });
+
+// Usage
+const validator = base64Schema.toValidator();
+
+// Valid examples
+validator.safeParse("aGVsbG8="); // "hello" encoded - Success
+validator.safeParse("YWJjMTIz"); // "abc123" encoded - Success
+validator.safeParse("YQ=="); // "a" encoded - Success
+
+// Invalid examples
+validator.safeParse("abc=="); // Invalid format - Error
+validator.safeParse("YW!j"); // Invalid character - Error
+validator.safeParse(""); // Empty string - Error
+```
+
+### Date and Time Validation
+
+```typescript
+import { string } from "veffect";
+
+// Date validation (YYYY-MM-DD)
+const dateSchema = string().date();
+
+// Time validation (HH:MM:SS[.sss])
+const timeSchema = string().time();
+
+// Time with specific precision
+const preciseTimeSchema = string().time({ precision: 3 });
+
+// ISO 8601 duration validation
+const durationSchema = string().duration();
+
+// Usage examples
+const dateValidator = dateSchema.toValidator();
+const timeValidator = timeSchema.toValidator();
+const durationValidator = durationSchema.toValidator();
+
+// Date validation
+dateValidator.safeParse("2025-12-31"); // Valid date - Success
+dateValidator.safeParse("2024-02-29"); // Valid leap year date - Success
+dateValidator.safeParse("2025-02-29"); // Invalid date (not leap year) - Error
+dateValidator.safeParse("2025/12/31"); // Wrong format - Error
+
+// Time validation
+timeValidator.safeParse("13:45:30"); // Valid time - Success
+timeValidator.safeParse("23:59:59.999"); // Valid time with ms - Success
+timeValidator.safeParse("24:00:00"); // Invalid hour - Error
+timeValidator.safeParse("12:60:00"); // Invalid minute - Error
+
+// Duration validation
+durationValidator.safeParse("P1Y2M3DT4H5M6S"); // Complex duration - Success
+durationValidator.safeParse("P1Y"); // 1 year - Success
+durationValidator.safeParse("PT1H"); // 1 hour - Success
+durationValidator.safeParse("P1S"); // Invalid (S needs T prefix) - Error
+```
+
+### Specialized String Formats
+
+```typescript
+import { string } from "veffect";
+
+// Emoji validation
+const emojiSchema = string().emoji();
+
+// Nanoid validation (URL-friendly identifier format)
+const nanoidSchema = string().nanoid();
+
+// Usage
+const emojiValidator = emojiSchema.toValidator();
+const nanoidValidator = nanoidSchema.toValidator();
+
+// Emoji validation
+emojiValidator.safeParse("😀"); // Single emoji - Success
+emojiValidator.safeParse("👨‍👩‍👧"); // Family emoji with ZWJ sequences - Success
+emojiValidator.safeParse("Hello 😀"); // Mixed content - Error
+
+// Nanoid validation
+nanoidValidator.safeParse("abc123"); // Alphanumeric - Success
+nanoidValidator.safeParse("a_b-c"); // With underscores and hyphens - Success
+nanoidValidator.safeParse("abc$def"); // Invalid character - Error
+```
+
+### Datetime Validation
+
+```typescript
+import { string } from "veffect";
+
+// Basic ISO datetime validation (UTC only with Z)
+const datetimeSchema = string().datetime();
+
+// Datetime with offset allowed
+const offsetDatetimeSchema = string().datetime({ offset: true });
+
+// Local datetime (no timezone)
+const localDatetimeSchema = string().datetime({ local: true });
+
+// Datetime with specific precision
+const preciseDatetimeSchema = string().datetime({ precision: 3 });
+
+// Usage
+const datetimeValidator = datetimeSchema.toValidator();
+const offsetValidator = offsetDatetimeSchema.toValidator();
+const localValidator = localDatetimeSchema.toValidator();
+
+// Basic datetime validation
+datetimeValidator.safeParse("2025-12-31T23:59:59Z"); // Valid - Success
+datetimeValidator.safeParse("2025-12-31T23:59:59+00:00"); // Invalid (no offset) - Error
+
+// With offset option
+offsetValidator.safeParse("2025-12-31T23:59:59Z"); // Valid - Success
+offsetValidator.safeParse("2025-12-31T23:59:59+02:00"); // Valid - Success
+offsetValidator.safeParse("2025-12-31T23:59:59-05:00"); // Valid - Success
+
+// Local datetime (no timezone)
+localValidator.safeParse("2025-12-31T23:59:59"); // Valid - Success
+localValidator.safeParse("2025-12-31T23:59:59Z"); // Invalid (has Z) - Error
+```
+
 ## 📚 Examples
 
-The repository includes several example files in the `playground` directory
+The repository includes several example files in the `playground` directory:
+
+- **Basic validation examples** demonstrating primitive schemas
+- **Object, array, and tuple validations** with nested structures
+- **Union and discriminated union examples** showing type narrowing
+- **Pattern matching** for dynamic schema selection
+- **Enhanced string validation** showcasing CIDR, base64, date, time, and other specialized formats
+- **Practical API validation** scenarios with real-world use cases
+- **Registry and metadata** examples demonstrating documentation generation
+- **Recursive type** handling with lazy evaluation
+- **Map and Set validation** with complex constraints
+
+Run the examples after building the library:
+
+```bash
+npm run build
+npx ts-node playground/string-validations.ts
+```
 
 ---
 

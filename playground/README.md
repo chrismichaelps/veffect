@@ -128,6 +128,18 @@ The playground contains several example scripts demonstrating different aspects 
     npx ts-node playground/primitive-types-examples.ts
     ```
 
+19. **String Validation Examples** - Demonstrates the enhanced string validation functions
+
+    ```bash
+    npx ts-node playground/string-validations.ts
+    ```
+
+20. **String Validation Edge Cases** - Tests boundary conditions and edge cases for string validation
+
+    ```bash
+    npx ts-node playground/string-validation-edge-cases.ts
+    ```
+
 ## Example Use Cases
 
 Each example showcases real-world validation scenarios:
@@ -208,3 +220,9 @@ If you're new to the library, this is a great place to start as it follows the d
   - Standard primitives (string, number, boolean, bigint, date)
   - Special primitives (symbol, null, undefined, void)
   - Type-safety primitives (any, unknown, never)
+- Enhanced string validations:
+  - Network validation (CIDR notation for IPv4 and IPv6)
+  - Base64 validation (standard and URL-safe with padding options)
+  - Date and time validation (ISO 8601 dates, times with precision, durations)
+  - Special formats (emoji, nanoid)
+  - Rich datetime validation (UTC, with offset, local formats, and precision controls)

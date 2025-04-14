@@ -164,7 +164,9 @@ export interface StringSchema extends
   RefinableSchema<string, StringSchema>,
   TransformableSchema<string, StringSchema>,
   DefaultableSchema<string, StringSchema>,
-  NullableSchema<string, StringSchema> {
+  NullableSchema<string, StringSchema>,
+  PredicateSchema<string, StringSchema>,
+  CustomErrorsSchema<string, StringSchema> {
   readonly _tag: 'StringSchema';
 
   // String specific validations
@@ -181,14 +183,19 @@ export interface StringSchema extends
   readonly startsWith: (substring: string, message?: string) => StringSchema;
   readonly endsWith: (substring: string, message?: string) => StringSchema;
   readonly includes: (substring: string, message?: string) => StringSchema;
-  readonly datetime: (options?: { offset?: boolean, precision?: number }, message?: string) => StringSchema;
+  readonly datetime: (options?: { offset?: boolean, precision?: number, local?: boolean }, message?: string) => StringSchema;
   readonly ip: (version?: 'v4' | 'v6', message?: string) => StringSchema;
   readonly nonempty: (message?: string) => StringSchema;
-
-  // String transformations
   readonly trim: (message?: string) => StringSchema;
   readonly toLowerCase: () => StringSchema;
   readonly toUpperCase: () => StringSchema;
+  readonly emoji: (message?: string) => StringSchema;
+  readonly nanoid: (message?: string) => StringSchema;
+  readonly cidr: (options?: { version?: 'v4' | 'v6' }, message?: string) => StringSchema;
+  readonly base64: (message?: string) => StringSchema;
+  readonly date: (message?: string) => StringSchema;
+  readonly time: (options?: { precision?: number }, message?: string) => StringSchema;
+  readonly duration: (message?: string) => StringSchema;
 }
 
 /**
